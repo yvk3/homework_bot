@@ -101,7 +101,7 @@ def send_message(bot, message):
 
 
 def get_api_answer(current_timestamp):
-    """Запрос к эндпоинту API-сервса. """
+    """Запрос к эндпоинту API-сервса."""
     timestamp = current_timestamp or int(time.time())
     params = {'from_date': timestamp}
     all_parms = dict(headers=HEADERS, params=params, url=ENDPOINT)
@@ -125,8 +125,8 @@ def get_api_answer(current_timestamp):
 
 
 def check_response(response):
-    """
-    Проверяется ответ API. Должен вернуться номер
+    """Проверяется ответ API.
+        Должен вернуться номер
     домашней работы, если работа была отправлена.
     """
     if isinstance(response, dict):
