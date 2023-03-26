@@ -93,6 +93,7 @@ def send_message(bot, message):
     """Студенту отправляется сообщение в Телеграм, о статусе его работы."""
     try:
         bot.send_message(TELEGRAM_CHAT_ID, message)
+        logger.info('Бот отправил сообщение.')
         logger.debug(
             f'Сообщение отправлено: {message}'
         )
@@ -102,11 +103,12 @@ def send_message(bot, message):
 
 def get_api_answer(current_timestamp):
     """Запрос к эндпоинту API-сервса."""
-    timestamp = current_timestamp or int(time.time())
-    params = {'from_date': timestamp}
+    # timestamp = current_timestamp or int(time.time())
+    params = {'from_date': current_timestamp}
     all_parms = dict(headers=HEADERS, params=params, url=ENDPOINT)
     try:
         response = requests.get(**all_parms)
+        logger.info('Отправлен запрос к API Яндекс Практикум')
     except requests.exceptions.RequestException as error:
         raise telegram.TelegramError(CONNECTION_ERROR.format(
             error=error,
@@ -140,10 +142,19 @@ def check_response(response):
 
 def parse_status(homework):
     """Какой статус у проверяемой домашней работы."""
+    keys = ['homework_name', 'status']
     if not isinstance(homework, dict):
         raise DataTypeError(WRONG_DATE_TYPE.format(type(homework)))
-    if 'homework_name' not in homework:
-        raise KeyError('Такой работы нет')
+    # if 'homework_name' not in homework:
+    #     raise KeyError('Такой работы нет')
+    for key in keys:
+        if key not in homework.keys():
+            bot = telegram.Bot(token=TELEGRAM_TOKEN)
+            message = f'Ответ API не содержит ключ "{key}"'
+            logger.error(message)
+            send_message(bot, message)
+            raise KeyError('Ответ API не содержит необходимых ключей.')
+
     homework_status = homework.get('status')
     homework_name = homework.get('homework_name')
 
